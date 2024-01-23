@@ -1,0 +1,33 @@
+When integrating Kafka Exporter metrics with Dynatrace, you'll likely need to set up custom annotations or metrics in Dynatrace to capture and display the Kafka-related information. Here's a general example of how you might annotate Kafka-related metrics for Dynatrace:
+
+Edit Annotations in Dynatrace:
+
+Log in to your Dynatrace account.
+Navigate to the application or service where you want to add annotations.
+Look for an "Annotate" or "Custom Annotations" section.
+Create Annotations for Kafka Metrics:
+
+Define custom annotations for Kafka metrics like kafka_consumergroup_lag_gauge.
+Specify the relevant information, such as the metric name, value, and any additional context.
+Use Dynatrace API (Optional):
+
+Dynatrace also provides an API that allows you to push custom metrics. You can use this to send Kafka Exporter metrics directly to Dynatrace.
+Here's an example using the Dynatrace API (this is just a conceptual example, and you may need to adjust it based on Dynatrace's API specifics):
+
+bash
+Copy code
+curl -X POST "https://<your-dynatrace-environment>/api/v2/metrics/ingest" \
+-H "Authorization: Api-Token <your-api-token>" \
+-H "Content-Type: application/json" \
+-d '[
+  {
+    "metricKey": "custom.kafka.lag",
+    "dimensions": {
+      "consumer_group": "your_consumer_group",
+      "topic": "your_topic"
+    },
+    "timestamp": <current_timestamp>,
+    "value": <kafka_consumergroup_lag_gauge_value>
+  }
+]'
+Replace <your-dynatrace-environment>, <your-api-token>, your_consumer_group, your_topic, <current_timestamp>, and <kafka_consumergroup_lag_gauge_value> with your Dynatrace environment details, Kafka-related information, and metric values.
