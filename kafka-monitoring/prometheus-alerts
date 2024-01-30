@@ -1,0 +1,3 @@
+sum by (topic, consumer_group) (kafka_consumergroup_lag) > kafka_consumergroup_lag_threshold{topic="your_topic_name"} offset 5m
+
+kafka_consumergroup_lag_threshold{topic="your_topic_name"} > your_threshold_value
