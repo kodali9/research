@@ -1,0 +1,17 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: kafka-consumer-lag-alerts
+spec:
+  groups:
+  - name: kafka_consumer_lag_alerts
+    rules:
+    - alert: KafkaConsumerLagAlert
+      expr: |
+        sum by (topic, consumer_group) (kafka_consumergroup_lag) > scalar(your_threshold_value) and topic == "your_topic_name"
+      for: 5m
+      labels:
+        severity: critical
+      annotations:
+        summary: "Kafka Consumer Lag Alert"
+        description: "Consumer group lag on topic 'your_topic_name' exceeds the threshold."
