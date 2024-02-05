@@ -1,0 +1,33 @@
+stages:
+  - deploy
+
+variables:
+  ENVIRONMENTS: ''
+
+prompt_for_environments:
+  stage: deploy
+  script:
+    - read -p "Enter a comma-separated list of environments (e.g., dev,sit,prod): " ENVIRONMENTS
+  only:
+    changes:
+      - '**/*.yml'
+
+ksqldb:
+  stage: deploy
+  script:
+    - |
+      for file in $(git diff --name-only $CI_COMMIT_BEFORE_SHA $CI_COMMIT_SHA); do
+        if [[ $file == */*.yml ]]; then
+          # Extract ksqldb commands from $file and execute them for specified environments
+          ksqlDB_commands=$(grep -E 'your_ksqldb_pattern' $file)
+          IFS=',' read -ra ENV_ARRAY <<< "$ENVIRONMENTS"
+          for env in "${ENV_ARRAY[@]}"; do
+            ksqlDB-cli -e "$env" <<< "$ksqlDB_commands"
+          done
+        fi
+      done
+  only:
+    changes:
+      - '**/*.yml'
+  dependencies:
+    - prompt_for_environments
