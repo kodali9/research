@@ -1,0 +1,7 @@
+# Example installation command
+curl -sSL https://github.com/confluentinc/ksql/releases/download/v0.24.0/ksql-0.24.0-linux.tar.gz | tar -xz
+
+
+ksql http://your-ksqldb-endpoint:8088
+
+ksql < test.sql
