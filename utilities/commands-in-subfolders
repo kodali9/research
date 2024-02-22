@@ -7,10 +7,15 @@ parent_dir="path/to/parent_directory"
 for folder in "$parent_dir"/*; do
     # Check if the item is a directory
     if [ -d "$folder" ]; then
-        echo "Processing folder: $folder"
-        # Run your command here, for example:
-        # command_to_run "$folder"
-        # Replace `command_to_run` with the actual command you want to execute,
-        # and use "$folder" as an argument if needed.
+        # Check if the folder name does not contain "webui"
+        if [[ ! "$folder" =~ "webui" ]]; then
+            echo "Processing folder: $folder"
+            # Run your command here, for example:
+            # command_to_run "$folder"
+            # Replace `command_to_run` with the actual command you want to execute,
+            # and use "$folder" as an argument if needed.
+        else
+            echo "Skipping folder: $folder (contains 'webui' in the name)"
+        fi
     fi
 done
