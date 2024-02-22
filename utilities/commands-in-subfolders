@@ -1,0 +1,16 @@
+#!/bin/bash
+
+# Specify the parent directory containing the subfolders
+parent_dir="path/to/parent_directory"
+
+# Iterate through each subfolder
+for folder in "$parent_dir"/*; do
+    # Check if the item is a directory
+    if [ -d "$folder" ]; then
+        echo "Processing folder: $folder"
+        # Run your command here, for example:
+        # command_to_run "$folder"
+        # Replace `command_to_run` with the actual command you want to execute,
+        # and use "$folder" as an argument if needed.
+    fi
+done
