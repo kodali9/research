@@ -31,6 +31,7 @@ environments.each do |env|
     if File.file?(deployment_path)
       deployment_data = YAML.load_file(deployment_path)
       memory_limit = deployment_data.dig('spec', 'template', 'spec', 'containers', 0, 'resources', 'limits', 'memory') || 'N/A'
+      cpu_limit = deployment_data.dig('spec', 'template', 'spec', 'containers', 0, 'resources', 'limits', 'cpu') || 'N/A'
 
       # Calculate memory_limit_number
       memory_limit_number = case memory_limit
@@ -41,9 +42,19 @@ environments.each do |env|
                             else
                               'N/A'
                             end
+
+      # Calculate cpu_limit_number
+      cpu_limit_number = case cpu_limit
+                         when /(\d+)m/
+                           $1.to_i / 1000
+                         else
+                           cpu_limit.to_f # assuming numeric values are in cores
+                         end
     else
       memory_limit = 'N/A'
       memory_limit_number = 'N/A'
+      cpu_limit = 'N/A'
+      cpu_limit_number = 'N/A'
     end
 
     # Add service information to the data structure
@@ -51,7 +62,9 @@ environments.each do |env|
       name: service_name,
       value1: value1,
       memory_limit: memory_limit,
-      memory_limit_number: memory_limit_number
+      memory_limit_number: memory_limit_number,
+      cpu_limit: cpu_limit,
+      cpu_limit_number: cpu_limit_number
     }
   end
 end
