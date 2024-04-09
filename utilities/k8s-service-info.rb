@@ -21,23 +21,37 @@ environments.each do |env|
     kustomization_path = File.join(service_folder, 'kustomization.yaml')
     deployment_path = File.join(service_folder, 'deployment.yaml')
 
-    next unless File.file?(kustomization_path) && File.file?(deployment_path)
+    next unless File.file?(kustomization_path)
 
     # Parse kustomization.yaml
     kustomization_data = YAML.load_file(kustomization_path)
     value1 = kustomization_data['commonAnnotations']&.fetch('value1', 'N/A')
 
-    # Parse deployment.yaml
-    deployment_data = YAML.load_file(deployment_path)
-    memory_limit = deployment_data.dig('spec', 'template', 'spec', 'containers', 0, 'resources', 'limits', 'memory') || 'N/A'
-    cpu_limit = deployment_data.dig('spec', 'template', 'spec', 'containers', 0, 'resources', 'limits', 'cpu') || 'N/A'
+    # Parse deployment.yaml if it exists
+    if File.file?(deployment_path)
+      deployment_data = YAML.load_file(deployment_path)
+      memory_limit = deployment_data.dig('spec', 'template', 'spec', 'containers', 0, 'resources', 'limits', 'memory') || 'N/A'
+
+      # Calculate memory_limit_number
+      memory_limit_number = case memory_limit
+                            when /(\d+)Gi/
+                              $1.to_i
+                            when /(\d+)Mi/
+                              $1.to_i / 1024
+                            else
+                              'N/A'
+                            end
+    else
+      memory_limit = 'N/A'
+      memory_limit_number = 'N/A'
+    end
 
     # Add service information to the data structure
     services << {
       name: service_name,
       value1: value1,
       memory_limit: memory_limit,
-      cpu_limit: cpu_limit
+      memory_limit_number: memory_limit_number
     }
   end
 end
