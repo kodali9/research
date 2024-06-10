@@ -6,3 +6,15 @@ yq eval '.spec.template.spec.volumes[0].name = "application-yaml" |
          .spec.template.spec.volumes[0].configMap.name = "application-yaml" |
          .spec.template.spec.volumes[0].configMap.items[0].key = "application.yaml" |
          .spec.template.spec.volumes[0].configMap.items[0].path = "application.yaml"' -i yourfile.yaml
+
+yq -i '
+.spec.template.spec.containers[0] += {
+    "volumeMounts": [
+        {
+            "mountPath": "test",
+            "subPath": "application.yaml",
+            "name": "application-yaml"
+        }
+    ]
+}
+' example.yaml
