@@ -1,0 +1,1 @@
+yq eval '.spec.template.spec.volumes += {"name": "config-volume", "secret": {"secretName": "test"}}' -i your-file.yaml
