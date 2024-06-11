@@ -18,3 +18,7 @@ yq -i '
     ]
 }
 ' example.yaml
+
+
+
+yq eval '.spec.template.spec.volumes += [{"name": "application-yaml", "configMap": {"name": "application-yaml", "items": [{"key": "application.yaml", "path": "application.yaml"}]}}]' -i yourfile.yaml
