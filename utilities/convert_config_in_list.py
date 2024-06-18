@@ -1,55 +1,31 @@
 #!/bin/bash
 
-# Check if the environment directory and subfolders list are provided
-if [ "$#" -lt 2 ]; then
-  echo "Usage: $0 <environment_directory> <subfolder1> [<subfolder2> ... <subfolderN>]"
-  exit 1
-fi
+# List of services
+SERVICES=("service1" "service2" "service3")
 
-# Environment directory to process
-ENV_DIR="$1"
-shift
+# Base directory where the services are located
+BASE_DIR="/path/to/your/services"
 
-# List of subfolders to check
-SUBFOLDERS=("$@")
-
-# Base directory for environments
-BASE_DIR="/path/to/your/gitlab/project/environments"
-
-# Check if the provided environment directory exists within the base directory
-if [ ! -d "$BASE_DIR/$ENV_DIR" ]; then
-  echo "Environment directory $BASE_DIR/$ENV_DIR does not exist."
-  exit 1
-fi
-
-# Full path to the environment directory
-ENV_DIR_PATH="$BASE_DIR/$ENV_DIR"
-
-# Python script to run
-PYTHON_SCRIPT="/path/to/your/script.py"
-
-echo "Processing environment: $ENV_DIR_PATH"
-
-# Loop through each specified subfolder within the environment
-for SUBFOLDER in "${SUBFOLDERS[@]}"; do
-  SERVICE_DIR="$ENV_DIR_PATH/$SUBFOLDER"
+# Iterate through each service in the list
+for SERVICE in "${SERVICES[@]}"
+do
+  SERVICE_DIR="$BASE_DIR/$SERVICE"
   
   if [ -d "$SERVICE_DIR" ]; then
-    echo "  Checking service: $SERVICE_DIR"
-
-    # Check for the existence of configmap.yaml
-    if [ -f "$SERVICE_DIR/configmap.yaml" ]; then
-      echo "    Found configmap.yaml in $SERVICE_DIR"
-
-      # Change to the service directory and run the Python script
-      cd "$SERVICE_DIR" || continue
-      python3 "$PYTHON_SCRIPT"
+    CONFIGMAP_FILE="$SERVICE_DIR/configmap.yaml"
+    
+    if [ -f "$CONFIGMAP_FILE" ]; then
+      # Change to the service directory
+      cd "$SERVICE_DIR"
+      
+      # Run the kustomize edit add command
+      kustomize edit add resource configmap.yaml
+      
+      echo "Processed $SERVICE_DIR"
     else
-      echo "    No configmap.yaml found in $SERVICE_DIR"
+      echo "No configmap.yaml found in $SERVICE_DIR"
     fi
   else
-    echo "  Service directory $SERVICE_DIR does not exist."
+    echo "$SERVICE_DIR does not exist"
   fi
 done
-
-echo "Done!"
