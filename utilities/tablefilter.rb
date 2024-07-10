@@ -39,7 +39,7 @@ html = Sculpt.make do
 
       script src: "https://unpkg.com/tablefilter@latest/dist/tablefilter/tablefilter.js"
       script do
-        raw "var tf = new TableFilter('demo-table', { base_path: 'https://unpkg.com/tablefilter@latest/dist/tablefilter/' }); tf.init();"
+        text "var tf = new TableFilter('demo-table', { base_path: 'https://unpkg.com/tablefilter@latest/dist/tablefilter/' }); tf.init();"
       end
     end
   end
