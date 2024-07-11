@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TableFilter Example</title>
+    <link rel="stylesheet" type="text/css" href="https://unpkg.com/tablefilter@latest/dist/tablefilter/style/tablefilter.css">
+</head>
+<body>
+    <table id="myTable">
+        <thead>
+            <tr>
+                <th>Header 1</th>
+                <th>Header 2</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Alpha</td>
+                <td>200</td>
+            </tr>
+            <tr>
+                <td>Charlie</td>
+                <td>100</td>
+            </tr>
+            <tr>
+                <td>Bravo</td>
+                <td>300</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <script src="https://unpkg.com/tablefilter@latest/dist/tablefilter/tablefilter.js"></script>
+    <script>
+        var filtersConfig = {
+            base_path: 'https://unpkg.com/tablefilter@latest/dist/tablefilter/',
+            col_types: [
+                'string', 'number'  // Define the column types
+            ],
+            sort: true,  // Enable sorting
+            sort_config: {
+                initial_col: 0,  // Initial sort column (0-indexed)
+                initial_order: 'asc'  // Initial sort order
+            },
+            extensions: [{
+                name: 'sort'
+            }]
+        };
+
+        var tf = new TableFilter('myTable', filtersConfig);
+        tf.init();
+    </script>
+</body>
+</html>
