@@ -1,0 +1,7 @@
+kubectl get pods --all-namespaces -o json | jq '.items[] | select(.status.containerStatuses[]?.lastState.terminated.reason=="OOMKilled") | {namespace: .metadata.namespace, podName: .metadata.name}'
+
+kubectl describe pod <pod-name> | grep -i "oomkilled"
+
+kubectl get pods --namespace <namespace-name> -o json | jq '.items[] | select(.status.containerStatuses[]?.lastState.terminated.reason=="OOMKilled") | .metadata.name'
+
+kubectl logs <pod-name> | grep -i "oom"
