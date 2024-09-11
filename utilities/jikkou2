@@ -1,0 +1,15 @@
+contexts:
+  - name: "my-kafka-context"
+    kafka:
+      bootstrapServers: "your-kafka-broker:9093"
+      securityProtocol: "SASL_SSL"
+      saslMechanism: "PLAIN"
+      saslJaasConfig: >
+        org.apache.kafka.common.security.plain.PlainLoginModule required
+        username="your-username"
+        password="your-password";
+      sslTruststoreLocation: "/path/to/truststore.jks"
+      sslTruststorePassword: "truststore-password"
+      sslKeystoreLocation: "/path/to/keystore.jks"
+      sslKeystorePassword: "keystore-password"
+currentContext: "my-kafka-context"
