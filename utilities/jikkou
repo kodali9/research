@@ -1,0 +1,14 @@
+kafka:
+  bootstrapServers: "your-kafka-broker:9093"
+  securityProtocol: "SASL_SSL"
+  saslMechanism: "PLAIN" # Or SCRAM-SHA-256/SCRAM-SHA-512 based on your setup
+  saslJaasConfig: >
+    org.apache.kafka.common.security.plain.PlainLoginModule required
+    username="your-username"
+    password="your-password";
+  sslTruststoreLocation: "/path/to/truststore.jks"
+  sslTruststorePassword: "truststore-password"
+  # Optional depending on your setup
+  sslKeystoreLocation: "/path/to/keystore.jks"
+  sslKeystorePassword: "keystore-password"
+  sslEndpointIdentificationAlgorithm: "HTTPS" # Default for Kafka SSL
