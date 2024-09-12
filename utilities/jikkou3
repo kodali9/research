@@ -1,0 +1,8 @@
+kafka:
+  bootstrap.servers: "your_kafka_broker:port"
+  security.protocol: "SASL_SSL"
+  sasl.mechanism: "PLAIN" # or use other mechanisms like SCRAM-SHA-256, SCRAM-SHA-512, etc.
+  sasl.jaas.config: "org.apache.kafka.common.security.plain.PlainLoginModule required username='your_username' password='your_password';"
+  ssl.truststore.location: "/path/to/your/truststore.jks"
+  ssl.truststore.password: "your_truststore_password"
+  client.dns.lookup: "use_all_dns_ips" # Optional, depending on your setup
