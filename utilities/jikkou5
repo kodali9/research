@@ -1,0 +1,27 @@
+{
+  "environments": {
+    "dev": {
+      "kafka": {
+        "bootstrap.servers": "dev_kafka_broker:port",
+        "security.protocol": "SASL_SSL",
+        "sasl.mechanism": "PLAIN",
+        "sasl.jaas.config": "org.apache.kafka.common.security.plain.PlainLoginModule required username='dev_username' password='dev_password';",
+        "ssl.truststore.location": "/path/to/dev/truststore.jks",
+        "ssl.truststore.password": "dev_truststore_password"
+      }
+    },
+    "prod": {
+      "kafka": {
+        "bootstrap.servers": "prod_kafka_broker:port",
+        "security.protocol": "SASL_SSL",
+        "sasl.mechanism": "PLAIN",
+        "sasl.jaas.config": "org.apache.kafka.common.security.plain.PlainLoginModule required username='prod_username' password='prod_password';",
+        "ssl.truststore.location": "/path/to/prod/truststore.jks",
+        "ssl.truststore.password": "prod_truststore_password"
+      }
+    }
+  },
+  "contexts": {
+    "default": "dev"
+  }
+}
