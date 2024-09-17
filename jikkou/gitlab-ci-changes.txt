@@ -1,0 +1,44 @@
+stages:
+  - check_files
+  - process_files
+
+check_files:
+  stage: check_files
+  script:
+    # Find added or updated files in the folder
+    - git diff --name-status HEAD~1 | grep '^A' > added_files.txt || true
+    - git diff --name-status HEAD~1 | grep '^M' > updated_files.txt || true
+  artifacts:
+    paths:
+      - added_files.txt
+      - updated_files.txt
+
+process_added_files:
+  stage: process_files
+  script:
+    # Process added files
+    - if [ -s added_files.txt ]; then
+        while read -r file; do
+          # Remove the "A" status indicator from the file line
+          file_path=$(echo $file | cut -f2);
+          echo "Creating for $file_path";
+          create_command "$file_path";
+        done < added_files.txt;
+      else
+        echo "No files to create";
+      fi
+
+process_updated_files:
+  stage: process_files
+  script:
+    # Process updated files
+    - if [ -s updated_files.txt ]; then
+        while read -r file; do
+          # Remove the "M" status indicator from the file line
+          file_path=$(echo $file | cut -f2);
+          echo "Applying changes to $file_path";
+          apply_command "$file_path";
+        done < updated_files.txt;
+      else
+        echo "No files to apply";
+      fi
