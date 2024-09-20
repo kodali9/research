@@ -1,0 +1,43 @@
+To support Knative-based Lambda functions, the infrastructure must be prepared to handle event-driven, serverless workloads, similar to AWS Lambda but within a Kubernetes environment. Here's what's needed:
+
+### 1. **Kubernetes Cluster**
+   - A Kubernetes (K8s) cluster is the foundation. You can use a managed Kubernetes service (like EKS, GKE, or AKS) or run your own cluster.
+   - Ensure that the cluster has sufficient resources to handle the autoscaling behavior that Knative enables.
+
+### 2. **Knative Installation**
+   - **Knative Serving**: For deploying and managing serverless workloads. It enables autoscaling and revision management.
+   - **Knative Eventing**: For event-driven execution, allowing services to respond to events such as HTTP requests or messages from sources like Kafka, NATS, etc.
+
+### 3. **Networking & DNS**
+   - **Istio** (or another service mesh like Contour or Ambassador) is required to manage traffic routing, load balancing, and observability for Knative services.
+   - External **DNS** to route traffic to your Knative services.
+   - Knative uses **Kubernetes Ingress** for routing external traffic to services, but having a service mesh layer for intelligent routing and traffic splitting is common.
+
+### 4. **Storage & Data Services**
+   - Persistent storage solutions for stateful workloads, if needed. Knative is designed for stateless services, but certain use cases may require access to external storage systems (e.g., cloud storage, databases).
+   - Integration with cloud services for event sources and sinks (e.g., Kafka, Google Pub/Sub, etc.).
+
+### 5. **CI/CD Pipeline Integration**
+   - **Tekton** or another CI/CD tool can be used to integrate a deployment pipeline for building, testing, and deploying serverless functions. Tekton integrates well with Knative for automating releases.
+
+### 6. **Autoscaling & Monitoring**
+   - **Horizontal Pod Autoscalers (HPA)** or **KEDA** (Kubernetes Event-Driven Autoscaling) for scaling workloads based on events or metrics.
+   - **Prometheus** and **Grafana** for monitoring and alerting. Knative Serving emits metrics that can be collected via Prometheus.
+
+### 7. **Container Registry**
+   - A container image registry (like Docker Hub, GCR, ECR) to store the container images of your Knative services/functions. Functions need to be containerized and deployed from a registry.
+
+### 8. **Security & Authentication**
+   - Secure communication with **TLS/SSL** through Istio or other service meshes.
+   - **RBAC** (Role-Based Access Control) policies to control access to resources within the Kubernetes environment.
+   - Support for **IAM** (Identity and Access Management) and **SASL_SSL** or OAuth2 for secure communication with event sources (e.g., Kafka) when using Knative Eventing.
+
+### 9. **Load Balancing and API Gateway**
+   - Set up a load balancer for routing incoming traffic to your Knative functions.
+   - Optionally, use an API gateway (e.g., Ambassador, Kong) for managing APIs exposed by your Knative services.
+
+### 10. **Logging and Observability**
+   - **Fluentd** or **ELK stack** (Elasticsearch, Logstash, and Kibana) for log collection and aggregation.
+   - Knative provides built-in observability features, but additional logging infrastructure might be needed for more detailed logs.
+
+By ensuring that your infrastructure includes these components, you can effectively run serverless workloads using Knative in a Kubernetes environment, similar to how AWS Lambda operates in a cloud-native, event-driven manner.
