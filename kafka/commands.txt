@@ -1,0 +1,1 @@
+kafkactl get topics --output json | jq '.items[] | {topicName: .metadata.name, partitions: .spec.partitions, size: .status.sizeOnDisk}'
