@@ -1,0 +1,51 @@
+In Active Directory (AD) or LDAP (Lightweight Directory Access Protocol), the attributes returned depend on the object class (like user, group, computer, etc.) and the configuration of the directory. For a user object in Active Directory, here are some common attributes you can query and retrieve:
+
+General User Attributes
+
+	1.	cn (Common Name): Full name of the user.
+	2.	sAMAccountName: User logon name (username).
+	3.	userPrincipalName (UPN): The user’s logon name, usually in email format.
+	4.	displayName: User’s display name.
+	5.	givenName: User’s first name.
+	6.	sn (Surname): User’s last name.
+	7.	mail: User’s email address.
+	8.	telephoneNumber: User’s telephone number.
+	9.	title: User’s job title.
+
+Security and Permissions
+
+	1.	objectGUID: A unique identifier for the object.
+	2.	objectSid: The security identifier (SID) for the object.
+	3.	userAccountControl: Account control flags (like disabled, locked, password settings).
+	4.	lastLogonTimestamp: The last time the user logged in.
+
+Group Membership and Organization
+
+	1.	memberOf: Lists the groups to which the user belongs.
+	2.	primaryGroupID: The primary group for the user.
+	3.	manager: Distinguished Name (DN) of the user’s manager.
+	4.	department: Department to which the user belongs.
+
+Location and Address
+
+	1.	physicalDeliveryOfficeName: Office location.
+	2.	streetAddress: User’s street address.
+	3.	l (Location): User’s city.
+	4.	st (State): User’s state or province.
+	5.	postalCode: User’s postal code.
+
+System Information
+
+	1.	lastLogon: Last time the user logged into a domain controller.
+	2.	logonCount: Number of logons by the user.
+	3.	whenCreated: The date and time when the object was created.
+	4.	whenChanged: The date and time when the object was last changed.
+	5.	accountExpires: Date the account expires.
+
+Custom and Extended Attributes
+
+	1.	extensionAttribute1 to extensionAttribute15: Custom attributes available for additional information.
+	2.	description: User description or notes field.
+	3.	thumbnailPhoto: Photo attribute, often used for profile pictures.
+
+You can specify which attributes to return in your LDAP query based on your requirements. Note that availability may vary based on the Active Directory schema and configuration.
