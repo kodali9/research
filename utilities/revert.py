@@ -7,16 +7,20 @@ def revert_to_service_structure(base_dir):
     for env in os.listdir(base_dir):
         env_path = os.path.join(base_dir, env)
 
-        # Ignore non-directories and hidden folders.
-        if not os.path.isdir(env_path) or env.startswith('.'):
+        # Ignore non-directories, hidden folders, and folders named "build".
+        if (not os.path.isdir(env_path) or 
+            env.startswith('.') or 
+            env == 'build'):
             continue
 
         # Move each service folder back into its original service folder.
         for service in os.listdir(env_path):
             service_path = os.path.join(env_path, service)
 
-            # Ignore non-directories and hidden folders.
-            if not os.path.isdir(service_path) or service.startswith('.'):
+            # Ignore non-directories, hidden folders, and folders named "build".
+            if (not os.path.isdir(service_path) or 
+                service.startswith('.') or 
+                service == 'build'):
                 continue
 
             # Ensure the original service folder exists.
@@ -27,10 +31,13 @@ def revert_to_service_structure(base_dir):
             new_env_path = os.path.join(original_service_path, env)
             shutil.move(service_path, new_env_path)
 
-    # Cleanup: Remove empty environment folders.
+    # Cleanup: Remove empty environment folders (but do not remove "build").
     for env in os.listdir(base_dir):
         env_path = os.path.join(base_dir, env)
-        if os.path.isdir(env_path) and not os.listdir(env_path) and not env.startswith('.'):
+        if (os.path.isdir(env_path) and 
+            not os.listdir(env_path) and 
+            not env.startswith('.') and 
+            env != 'build'):
             os.rmdir(env_path)
 
     print("Reversion complete!")
