@@ -1,38 +1,40 @@
 import os
 import shutil
 
-def rearrange_folders(base_dir):
-    temp_dir = os.path.join(base_dir, "temp")
-    os.makedirs(temp_dir, exist_ok=True)
-    
-    for service in os.listdir(base_dir):
-        service_path = os.path.join(base_dir, service)
-        
-        if not os.path.isdir(service_path) or service.startswith("."):
-            continue
-        
-        for env in os.listdir(service_path):
-            env_path = os.path.join(service_path, env)
-            
-            if not os.path.isdir(env_path) or env.startswith("."):
-                continue
-            
-            new_env_dir = os.path.join(temp_dir, env)
-            new_service_path = os.path.join(new_env_dir, service)
-            
-            os.makedirs(new_service_path, exist_ok=True)
-            shutil.move(env_path, os.path.join(new_service_path, env))
-    
-    for service in os.listdir(base_dir):
-        service_path = os.path.join(base_dir, service)
-        if os.path.isdir(service_path) and not service.startswith("."):
-            shutil.rmtree(service_path)
-    
-    for env in os.listdir(temp_dir):
-        shutil.move(os.path.join(temp_dir, env), base_dir)
-    
-    os.rmdir(temp_dir)
+# Define the base directory where the services are stored
+base_dir = "/path/to/your/services"
 
-if __name__ == "__main__":
-    base_directory = "path/to/your/folder"  # Change this to your actual folder path
-    rearrange_folders(base_directory)
+# Temporary dictionary to store environment-to-service mapping
+env_map = {}
+
+# Scan for services
+for service in os.listdir(base_dir):
+    service_path = os.path.join(base_dir, service)
+
+    # Ignore non-directories and hidden folders
+    if not os.path.isdir(service_path) or service.startswith('.'):
+        continue
+
+    # Scan for environments inside the service folder
+    for env in os.listdir(service_path):
+        env_path = os.path.join(service_path, env)
+
+        # Ignore non-directories and hidden folders
+        if not os.path.isdir(env_path) or env.startswith('.'):
+            continue
+
+        # Ensure environment folder exists in the new structure
+        new_env_path = os.path.join(base_dir, env)
+        os.makedirs(new_env_path, exist_ok=True)
+
+        # Move the service's environment folder to the new structure
+        new_service_path = os.path.join(new_env_path, service)
+        shutil.move(env_path, new_service_path)
+
+# Cleanup: Remove empty service folders
+for service in os.listdir(base_dir):
+    service_path = os.path.join(base_dir, service)
+    if os.path.isdir(service_path) and not os.listdir(service_path):
+        os.rmdir(service_path)
+
+print("Rearrangement complete!")
