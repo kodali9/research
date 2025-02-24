@@ -1,27 +1,38 @@
-require 'fileutils'
+import os
+import shutil
 
-def rearrange_folders(base_dir)
-  return unless Dir.exist?(base_dir)
+def rearrange_folders(base_dir):
+    temp_dir = os.path.join(base_dir, "temp")
+    os.makedirs(temp_dir, exist_ok=True)
+    
+    for service in os.listdir(base_dir):
+        service_path = os.path.join(base_dir, service)
+        
+        if not os.path.isdir(service_path) or service.startswith("."):
+            continue
+        
+        for env in os.listdir(service_path):
+            env_path = os.path.join(service_path, env)
+            
+            if not os.path.isdir(env_path) or env.startswith("."):
+                continue
+            
+            new_env_dir = os.path.join(temp_dir, env)
+            new_service_path = os.path.join(new_env_dir, service)
+            
+            os.makedirs(new_service_path, exist_ok=True)
+            shutil.move(env_path, os.path.join(new_service_path, env))
+    
+    for service in os.listdir(base_dir):
+        service_path = os.path.join(base_dir, service)
+        if os.path.isdir(service_path) and not service.startswith("."):
+            shutil.rmtree(service_path)
+    
+    for env in os.listdir(temp_dir):
+        shutil.move(os.path.join(temp_dir, env), base_dir)
+    
+    os.rmdir(temp_dir)
 
-  Dir.children(base_dir).each do |service_folder|
-    service_path = File.join(base_dir, service_folder)
-    next unless File.directory?(service_path) && !service_folder.start_with?('.')
-
-    Dir.children(service_path).each do |env_folder|
-      env_path = File.join(service_path, env_folder)
-      next unless File.directory?(env_path) && !env_folder.start_with?('.')
-
-      new_env_dir = File.join(base_dir, env_folder)
-      new_service_path = File.join(new_env_dir, service_folder)
-      
-      FileUtils.mkdir_p(new_env_dir)
-      FileUtils.mv(env_path, new_service_path)
-    end
-
-    Dir.rmdir(service_path) if Dir.empty?(service_path)
-  end
-end
-
-base_directory = ARGV[0] || '.'  # Use the first argument as the base directory or default to current directory
-rearrange_folders(base_directory)
-puts "Folders rearranged successfully!"
+if __name__ == "__main__":
+    base_directory = "path/to/your/folder"  # Change this to your actual folder path
+    rearrange_folders(base_directory)
