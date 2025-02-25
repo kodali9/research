@@ -1,10 +1,13 @@
 #!/usr/bin/env ruby
 require 'fileutils'
-require 'optparse'
+
+# Set your base directory here.
+base_dir = "/path/to/your/services"
 
 def revert_to_service_structure(base_dir)
   # Iterate over top-level environment folders.
   Dir.foreach(base_dir) do |env|
+    # Skip hidden folders and folders named "build" or "html".
     next if env.start_with?('.') || %w[build html].include?(env)
     env_path = File.join(base_dir, env)
     next unless File.directory?(env_path)
@@ -25,7 +28,7 @@ def revert_to_service_structure(base_dir)
     end
   end
 
-  # Cleanup: Remove empty environment folders (ignore "build" and "html").
+  # Cleanup: Remove empty environment folders (ignoring "build" and "html").
   Dir.foreach(base_dir) do |env|
     next if env.start_with?('.') || %w[build html].include?(env)
     env_path = File.join(base_dir, env)
@@ -38,16 +41,4 @@ def revert_to_service_structure(base_dir)
   puts "Reversion complete!"
 end
 
-# Process command-line arguments.
-options = {}
-OptionParser.new do |opts|
-  opts.banner = "Usage: revert.rb [options] BASE_DIR"
-end.parse!(ARGV)
-
-if ARGV.empty?
-  puts "Usage: revert.rb BASE_DIR"
-  exit 1
-end
-
-base_dir = ARGV[0]
 revert_to_service_structure(base_dir)
