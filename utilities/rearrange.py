@@ -7,20 +7,20 @@ def rearrange_by_environment(base_dir):
     for service in os.listdir(base_dir):
         service_path = os.path.join(base_dir, service)
 
-        # Ignore non-directories, hidden folders, and folders named "build".
+        # Ignore non-directories, hidden folders, and folders named "build" or "html".
         if (not os.path.isdir(service_path) or 
             service.startswith('.') or 
-            service == 'build'):
+            service in {'build', 'html'}):
             continue
 
         # Iterate over environment subdirectories inside the service folder.
         for env in os.listdir(service_path):
             env_path = os.path.join(service_path, env)
 
-            # Ignore non-directories, hidden folders, and folders named "build".
+            # Ignore non-directories, hidden folders, and folders named "build" or "html".
             if (not os.path.isdir(env_path) or 
                 env.startswith('.') or 
-                env == 'build'):
+                env in {'build', 'html'}):
                 continue
 
             # Define the new destination paths.
@@ -33,20 +33,20 @@ def rearrange_by_environment(base_dir):
             # Move the service's environment folder to the new structure.
             shutil.move(env_path, new_service_path)
 
-    # Cleanup: Remove empty service folders (but do not remove "build").
+    # Cleanup: Remove empty service folders (but do not remove "build" or "html").
     for service in os.listdir(base_dir):
         service_path = os.path.join(base_dir, service)
         if (os.path.isdir(service_path) and 
             not os.listdir(service_path) and 
             not service.startswith('.') and 
-            service != 'build'):
+            service not in {'build', 'html'}):
             os.rmdir(service_path)
 
     print("Rearrangement complete!")
 
 def main():
     parser = argparse.ArgumentParser(
-        description='Rearrange folders by environment (e.g., /dev, /prod) within the same base directory.'
+        description='Rearrange folders by environment (e.g., /dev, /prod) within the same base directory, ignoring "build" and "html".'
     )
     parser.add_argument('base_dir', help='The base directory containing the service folders.')
     args = parser.parse_args()
