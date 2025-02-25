@@ -1,27 +1,53 @@
+#!/usr/bin/env ruby
 require 'fileutils'
+require 'optparse'
 
-def reverse_rearrange_folders(base_dir)
-  return unless Dir.exist?(base_dir)
+def revert_to_service_structure(base_dir)
+  # Iterate over top-level environment folders.
+  Dir.foreach(base_dir) do |env|
+    next if env.start_with?('.') || %w[build html].include?(env)
+    env_path = File.join(base_dir, env)
+    next unless File.directory?(env_path)
 
-  Dir.children(base_dir).each do |env_folder|
-    env_path = File.join(base_dir, env_folder)
-    next unless File.directory?(env_path) && !env_folder.start_with?('.')
+    # For each service inside the environment folder.
+    Dir.foreach(env_path) do |service|
+      next if service.start_with?('.') || %w[build html].include?(service)
+      service_path = File.join(env_path, service)
+      next unless File.directory?(service_path)
 
-    Dir.children(env_path).each do |service_folder|
-      service_path = File.join(env_path, service_folder)
-      next unless File.directory?(service_path) && !service_folder.start_with?('.')
-
-      original_service_path = File.join(base_dir, service_folder)
-      original_env_path = File.join(original_service_path, env_folder)
-      
+      # Ensure the original service folder exists.
+      original_service_path = File.join(base_dir, service)
       FileUtils.mkdir_p(original_service_path)
-      FileUtils.mv(service_path, original_env_path)
-    end
 
-    Dir.rmdir(env_path) if Dir.empty?(env_path)
+      # Move the environment folder back inside the service folder.
+      new_env_path = File.join(original_service_path, env)
+      FileUtils.mv(service_path, new_env_path)
+    end
   end
+
+  # Cleanup: Remove empty environment folders (ignore "build" and "html").
+  Dir.foreach(base_dir) do |env|
+    next if env.start_with?('.') || %w[build html].include?(env)
+    env_path = File.join(base_dir, env)
+    next unless File.directory?(env_path)
+    if (Dir.entries(env_path) - %w[. ..]).empty?
+      Dir.rmdir(env_path)
+    end
+  end
+
+  puts "Reversion complete!"
 end
 
-base_directory = ARGV[0] || '.'  # Use the first argument as the base directory or default to current directory
-reverse_rearrange_folders(base_directory)
-puts "Folders reversed successfully!"
+# Process command-line arguments.
+options = {}
+OptionParser.new do |opts|
+  opts.banner = "Usage: revert.rb [options] BASE_DIR"
+end.parse!(ARGV)
+
+if ARGV.empty?
+  puts "Usage: revert.rb BASE_DIR"
+  exit 1
+end
+
+base_dir = ARGV[0]
+revert_to_service_structure(base_dir)
