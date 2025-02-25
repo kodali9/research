@@ -7,20 +7,20 @@ def revert_to_service_structure(base_dir):
     for env in os.listdir(base_dir):
         env_path = os.path.join(base_dir, env)
 
-        # Ignore non-directories, hidden folders, and folders named "build".
+        # Ignore non-directories, hidden folders, and folders named "build" or "html".
         if (not os.path.isdir(env_path) or 
             env.startswith('.') or 
-            env == 'build'):
+            env in {'build', 'html'}):
             continue
 
         # Move each service folder back into its original service folder.
         for service in os.listdir(env_path):
             service_path = os.path.join(env_path, service)
 
-            # Ignore non-directories, hidden folders, and folders named "build".
+            # Ignore non-directories, hidden folders, and folders named "build" or "html".
             if (not os.path.isdir(service_path) or 
                 service.startswith('.') or 
-                service == 'build'):
+                service in {'build', 'html'}):
                 continue
 
             # Ensure the original service folder exists.
@@ -31,20 +31,20 @@ def revert_to_service_structure(base_dir):
             new_env_path = os.path.join(original_service_path, env)
             shutil.move(service_path, new_env_path)
 
-    # Cleanup: Remove empty environment folders (but do not remove "build").
+    # Cleanup: Remove empty environment folders (but do not remove "build" or "html").
     for env in os.listdir(base_dir):
         env_path = os.path.join(base_dir, env)
         if (os.path.isdir(env_path) and 
             not os.listdir(env_path) and 
             not env.startswith('.') and 
-            env != 'build'):
+            env not in {'build', 'html'}):
             os.rmdir(env_path)
 
     print("Reversion complete!")
 
 def main():
     parser = argparse.ArgumentParser(
-        description='Revert the folder structure back to service-based organization.'
+        description='Revert the folder structure back to service-based organization, ignoring "build" and "html".'
     )
     parser.add_argument('base_dir', help='The base directory containing the environment folders.')
     args = parser.parse_args()
