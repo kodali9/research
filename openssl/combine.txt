@@ -1,0 +1,14 @@
+openssl pkcs12 -in first.p12 -clcerts -nokeys -out first-cert.pem
+openssl pkcs12 -in first.p12 -nocerts -nodes -out first-key.pem
+openssl pkcs12 -in second.p12 -clcerts -nokeys -out second-cert.pem
+openssl pkcs12 -in second.p12 -nocerts -nodes -out second-key.pem
+
+
+  openssl pkcs12 -in first.p12 -cacerts -nokeys -out first-ca.pem
+openssl pkcs12 -in second.p12 -cacerts -nokeys -out second-ca.pem
+
+
+  openssl pkcs12 -export -inkey first-key.pem -in first-cert.pem \
+    -inkey second-key.pem -in second-cert.pem \
+    -certfile first-ca.pem -certfile second-ca.pem \
+    -out combined.p12
