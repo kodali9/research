@@ -12,3 +12,5 @@ openssl pkcs12 -in second.p12 -cacerts -nokeys -out second-ca.pem
     -inkey second-key.pem -in second-cert.pem \
     -certfile first-ca.pem -certfile second-ca.pem \
     -out combined.p12
+
+openssl pkcs12 -export -out certificate.p12 -inkey private_key.pem -in certificate.pem -certfile ca_bundle.pem
