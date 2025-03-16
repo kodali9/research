@@ -1,0 +1,20 @@
+sudo apt update && sudo apt install ldap-utils -y
+
+ldapsearch -x -LLL -H ldap://your-ldap-server -D "cn=your-bind-user,dc=example,dc=com" -w 'your-password' \
+-b "dc=example,dc=com" "(memberUid=your-user-id)" cn
+
+	•	-x → Use simple authentication.
+	•	-LLL → Output in a clean format.
+	•	-H ldap://your-ldap-server → Replace your-ldap-server with your actual LDAP server address.
+	•	-D "cn=your-bind-user,dc=example,dc=com" → Bind DN (distinguished name) for authentication.
+	•	-w 'your-password' → Password for authentication.
+	•	-b "dc=example,dc=com" → Base DN where the search should start.
+	•	"(memberUid=your-user-id)" → Filter to find groups where the user is a member.
+	•	cn → Request only the cn (Common Name) attribute, which typically holds the group name.
+
+Alternative: Query User’s memberOf Attribute
+
+If your LDAP server supports the memberOf attribute, you can try:
+
+ldapsearch -x -LLL -H ldap://your-ldap-server -D "cn=your-bind-user,dc=example,dc=com" -w 'your-password' \
+-b "dc=example,dc=com" "(uid=your-user-id)" memberOf
