@@ -1,0 +1,32 @@
+# Start from Java 17 base image
+FROM openjdk:17-jdk-slim
+
+# Set Ignite version
+ENV IGNITE_VERSION 2.17.0
+
+# Set JAVA_HOME explicitly
+ENV JAVA_HOME=/usr/local/openjdk-17
+ENV PATH="$JAVA_HOME/bin:$PATH"
+
+# Install dependencies and download Ignite
+RUN apt-get update && apt-get install -y wget unzip && \
+    wget https://archive.apache.org/dist/ignite/${IGNITE_VERSION}/apache-ignite-${IGNITE_VERSION}-bin.zip && \
+    unzip apache-ignite-${IGNITE_VERSION}-bin.zip && \
+    mv apache-ignite-${IGNITE_VERSION}-bin /opt/ignite && \
+    rm apache-ignite-${IGNITE_VERSION}-bin.zip && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Set Ignite home
+ENV IGNITE_HOME /opt/ignite
+
+# Add Ignite binaries to PATH
+ENV PATH="${IGNITE_HOME}/bin:$PATH"
+
+# Default working directory
+WORKDIR /opt/ignite
+
+# Expose default Ignite ports
+EXPOSE 47500 47100 49112 11211 10800 8080
+
+# Command to run Ignite in standalone mode
+CMD ["ignite.sh"]
