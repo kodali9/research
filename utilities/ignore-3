@@ -1,0 +1,29 @@
+# Base image with OpenJDK 17
+FROM docker.cbp.dhs.gov/cloud/ubi/openjdk-build:17
+
+# Set Ignite version
+ENV IGNITE_VERSION=2.17.0
+ENV JAVA_HOME=/usr/local/openjdk-17
+ENV PATH="$JAVA_HOME/bin:$PATH"
+
+# Install wget and unzip using yum
+RUN yum install -y wget unzip && yum clean all
+
+# Download and extract Ignite
+RUN wget https://archive.apache.org/dist/ignite/${IGNITE_VERSION}/apache-ignite-${IGNITE_VERSION}-bin.zip && \
+    unzip apache-ignite-${IGNITE_VERSION}-bin.zip && \
+    mv apache-ignite-${IGNITE_VERSION}-bin /opt/ignite && \
+    rm apache-ignite-${IGNITE_VERSION}-bin.zip
+
+# Set Ignite home and path
+ENV IGNITE_HOME=/opt/ignite
+ENV PATH=$IGNITE_HOME/bin:$PATH
+
+# Expose Ignite ports
+EXPOSE 47500 47100 49112 10800
+
+# Set working directory
+WORKDIR /opt/ignite
+
+# Default command to start Ignite
+CMD ["bin/ignite.sh"]
