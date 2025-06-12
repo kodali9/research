@@ -1,5 +1,5 @@
 # Use UBI OpenJDK 17 base image
-FROM docker.cbp.dhs.gov/cloud/ubi/openjdk-build:17
+FROM dxxx/openjdk:17
 
 # Set Ignite version
 ENV IGNITE_VERSION=2.17.0
