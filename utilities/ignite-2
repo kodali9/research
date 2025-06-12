@@ -1,0 +1,31 @@
+# Use UBI OpenJDK 17 base image
+FROM docker.cbp.dhs.gov/cloud/ubi/openjdk-build:17
+
+# Set Ignite version
+ENV IGNITE_VERSION=2.17.0
+
+# Set Java environment
+ENV JAVA_HOME=/usr/local/openjdk-17
+ENV PATH="$JAVA_HOME/bin:$PATH"
+
+# Install wget and unzip using microdnf
+RUN microdnf install -y wget unzip && microdnf clean all
+
+# Download and extract Ignite
+RUN wget https://archive.apache.org/dist/ignite/${IGNITE_VERSION}/apache-ignite-${IGNITE_VERSION}-bin.zip && \
+    unzip apache-ignite-${IGNITE_VERSION}-bin.zip && \
+    mv apache-ignite-${IGNITE_VERSION}-bin /opt/ignite && \
+    rm apache-ignite-${IGNITE_VERSION}-bin.zip
+
+# Set Ignite environment
+ENV IGNITE_HOME=/opt/ignite
+ENV PATH=$IGNITE_HOME/bin:$PATH
+
+# Expose common Ignite ports
+EXPOSE 47500 47100 49112 10800
+
+# Set working directory
+WORKDIR /opt/ignite
+
+# Default command to run Ignite
+CMD ["bin/ignite.sh"]
