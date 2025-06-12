@@ -1,0 +1,21 @@
+ENV IGNITE_VERSION=2.17.0
+ENV JAVA_HOME=/usr/local/openjdk-17
+ENV PATH="$JAVA_HOME/bin:$PATH"
+
+# Install microdnf first, then wget + unzip
+RUN curl -o /tmp/microdnf.rpm -L http://mirror.centos.org/centos/8/BaseOS/x86_64/os/Packages/microdnf-3.7.1-1.el8.x86_64.rpm && \
+    rpm -i /tmp/microdnf.rpm && \
+    microdnf install -y wget unzip && \
+    microdnf clean all
+
+RUN wget https://archive.apache.org/dist/ignite/${IGNITE_VERSION}/apache-ignite-${IGNITE_VERSION}-bin.zip && \
+    unzip apache-ignite-${IGNITE_VERSION}-bin.zip && \
+    mv apache-ignite-${IGNITE_VERSION}-bin /opt/ignite && \
+    rm apache-ignite-${IGNITE_VERSION}-bin.zip
+
+ENV IGNITE_HOME=/opt/ignite
+ENV PATH=$IGNITE_HOME/bin:$PATH
+
+EXPOSE 47500 47100 49112 10800
+WORKDIR /opt/ignite
+CMD ["bin/ignite.sh"]
