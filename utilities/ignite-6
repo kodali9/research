@@ -1,0 +1,21 @@
+FROM apacheignite/ignite:2.17.0
+
+USER root
+
+# Install curl to fetch the JDK
+RUN apk update && apk add curl
+
+# Download and install OpenJDK 17 (Linux x64 build)
+RUN mkdir -p /opt && \
+    curl -L https://github.com/adoptium/temurin17-binaries/releases/latest/download/OpenJDK17U-jdk_x64_linux_hotspot.tar.gz -o /opt/jdk17.tar.gz && \
+    mkdir -p /opt/jdk17 && \
+    tar -xzf /opt/jdk17.tar.gz -C /opt/jdk17 --strip-components=1 && \
+    rm /opt/jdk17.tar.gz
+
+# Set environment variables
+ENV JAVA_HOME=/opt/jdk17
+ENV JDK_HOME=/opt/jdk17
+ENV PATH=$JAVA_HOME/bin:$PATH
+
+USER ignite
+WORKDIR /opt/ignite
