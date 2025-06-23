@@ -1,0 +1,24 @@
+#!/bin/bash
+
+# Get list of topics (excluding internal topics like __consumer_offsets)
+topics=$(kafkactl get topics -o json | jq -r '.[].name')
+
+echo "Topic, Replicas, MinISR, Warning"
+
+for topic in $topics; do
+  # Describe each topic
+  description=$(kafkactl describe topic "$topic" -o json)
+
+  # Extract relevant fields
+  replicas=$(echo "$description" | jq '.partitions[0].replicas | length')  # assumes all partitions have same replica count
+  min_isr=$(echo "$description" | jq '.config."min.insync.replicas" | tonumber')
+
+  # Check if minISR >= replicas
+  if [ "$min_isr" -ge "$replicas" ]; then
+    warning="⚠️  minISR >= replicas"
+  else
+    warning=""
+  fi
+
+  echo "$topic, $replicas, $min_isr, $warning"
+done
