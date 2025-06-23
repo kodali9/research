@@ -1,0 +1,37 @@
+#!/bin/bash
+
+# Get all topics and skip any header or empty lines
+topics=$(kafkactl get topics -o name | grep -v '^NAME' | grep -v '^$')
+
+printf "%-40s %-10s %-10s %-10s\n" "TOPIC" "REPLICAS" "MIN_ISR" "ALERT"
+printf "%s\n" "----------------------------------------------------------------------------------------"
+
+for topic in $topics; do
+    # Describe topic and extract replicationFactor and minISR
+    output=$(kafkactl describe topic "$topic" 2>/dev/null)
+
+    # Skip if topic does not exist or error occurs
+    if [ -z "$output" ]; then
+        continue
+    fi
+
+    # Extract replication factor
+    replicas=$(echo "$output" | grep -m1 "Replication Factor" | awk -F ':' '{print $2}' | tr -d ' ')
+    
+    # Extract minISR
+    minISR=$(echo "$output" | grep -m1 "Min In-Sync Replicas" | awk -F ':' '{print $2}' | tr -d ' ')
+    
+    # Skip if values are not found (e.g., malformed topic description)
+    if [ -z "$replicas" ] || [ -z "$minISR" ]; then
+        continue
+    fi
+
+    # Compare and flag issues
+    if [ "$minISR" -ge "$replicas" ]; then
+        alert="⚠️"
+    else
+        alert=""
+    fi
+
+    printf "%-40s %-10s %-10s %-10s\n" "$topic" "$replicas" "$minISR" "$alert"
+done
