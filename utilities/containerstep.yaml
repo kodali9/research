@@ -1,0 +1,59 @@
+- step:
+    name: Check Databricks Job Result
+    identifier: check_databricks
+    type: Container
+    spec:
+      connectorRef: <your-k8s-connector>
+      image: alpine:latest
+      command: /bin/sh
+      args:
+        - "-c"
+        - |
+          apk add --no-cache curl jq
+
+          echo "Triggering Databricks Job..."
+          JOB_ID=12345
+          DATABRICKS_TOKEN="${DATABRICKS_TOKEN}"
+          WORKSPACE_URL="https://<your-databricks-instance>"
+
+          run_response=$(curl -s -X POST "$WORKSPACE_URL/api/2.1/jobs/run-now" \
+            -H "Authorization: Bearer $DATABRICKS_TOKEN" \
+            -H "Content-Type: application/json" \
+            -d "{\"job_id\": $JOB_ID}")
+
+          RUN_ID=$(echo "$run_response" | jq -r '.run_id')
+          echo "Run ID: $RUN_ID"
+
+          for i in $(seq 1 30); do
+            echo "Polling job status..."
+            sleep 20
+
+            response=$(curl -s -X GET "$WORKSPACE_URL/api/2.1/jobs/runs/get?run_id=$RUN_ID" \
+              -H "Authorization: Bearer $DATABRICKS_TOKEN")
+
+            status=$(echo "$response" | jq -r '.state.life_cycle_state')
+            result=$(echo "$response" | jq -r '.state.result_state')
+
+            if [ "$status" = "TERMINATED" ]; then
+              if [ "$result" != "SUCCESS" ]; then
+                echo "Databricks job failed."
+                exit 1
+              fi
+
+              output=$(echo "$response" | jq -r '.notebook_output.result')
+              echo "Notebook returned: $output"
+
+              if [ "$output" -gt 0 ]; then
+                echo "Success: query returned rows."
+                exit 0
+              else
+                echo "Failure: query returned no rows."
+                exit 1
+              fi
+            fi
+          done
+
+          echo "Timeout waiting for Databricks job to finish."
+          exit 1
+      envVariables:
+        DATABRICKS_TOKEN: "<+secrets.getValue(\"databricks_token\")>"
