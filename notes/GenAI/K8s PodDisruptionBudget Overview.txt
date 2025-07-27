@@ -1,0 +1,50 @@
+**You:**
+
+k8s pdb
+
+* * *
+
+**ChatGPT:**
+
+In Kubernetes, a PodDisruptionBudget (PDB) is used to limit the number of pods of a replicated application that are down simultaneously from voluntary disruptions — like node drains, cluster upgrades, or scaling operations — to ensure high availability.
+
+🔧 Basic PDB Example
+yaml
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: my-app-pdb
+spec:
+  minAvailable: 2
+  selector:
+    matchLabels:
+      app: my-app
+
+
+This means at least 2 pods with the label app: my-app must be available at all times during voluntary disruptions.
+
+🎯 Key Fields in spec
+Field	Description
+minAvailable	Minimum number of pods that must be available after the disruption.
+maxUnavailable	Maximum number of pods that can be unavailable during the disruption.
+selector	Selects the pods that this PDB applies to using label selectors.
+
+Only one of minAvailable or maxUnavailable should be used.
+
+📌 Use Case Example
+
+You have a Deployment with 3 replicas of my-app. You can define:
+
+minAvailable: 2 — Only 1 pod can be disrupted at a time.
+
+maxUnavailable: 1 — Equivalent to above, allows 1 pod to be down.
+
+❗Important Notes
+
+PDBs do not prevent involuntary disruptions (e.g., node crash).
+
+They are used by controllers (like kubectl drain) to decide whether a disruption is allowed.
+
+For DaemonSets, PDBs don’t apply — they're already designed for node-level presence.
+
+Would you like help creating a PDB for your specific deployment or use case?

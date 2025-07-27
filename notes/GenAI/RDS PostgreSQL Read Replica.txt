@@ -1,0 +1,14 @@
+**You:**
+
+AWS RDS Postgres instance
+Has 2 databases 
+
+Is read replica at an instance level or at a database level 
+
+* * *
+
+**ChatGPT:**
+
+In AWS RDS for PostgreSQL, read replicas are created at the instance level, not the database level. This means that when you create a read replica, the entire RDS instance—including all databases within it—is replicated to the read replica instance. You cannot create a read replica for just one database within the instance.
+
+Let me know if you need further clarification!

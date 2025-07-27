@@ -1,0 +1,70 @@
+**You:**
+
+i have a pvc in a stateful set in k8s
+
+i want to find out if and how much of that storage is being used
+
+we use harness and rafts
+
+we currently have pod exec enable
+
+how can i check usage of the pvc storag 
+
+* * *
+
+**ChatGPT:**
+
+To check how much of your PersistentVolumeClaim (PVC) storage is being used in Kubernetes — since you have pod exec enabled — you can do this directly inside the pod that mounts the PVC.
+
+✅ Step-by-Step: Check PVC Usage via kubectl exec
+
+Identify the Pod using the PVC (likely part of your StatefulSet):
+
+sh
+kubectl get pods -l app=<your-app-label>
+
+
+Exec into the Pod:
+
+sh
+kubectl exec -it <pod-name> -- /bin/sh
+
+
+If /bin/sh doesn’t work, try /bin/bash.
+
+Find the Mounted PVC (common mount paths are /mnt, /data, /var/lib, etc.)
+You can run:
+
+sh
+df -h
+
+
+This gives output like:
+
+bash
+Filesystem      Size  Used Avail Use% Mounted on
+/dev/sda1        10G  2.5G  7.5G  25% /mnt/data
+
+
+(Optional) List Files to See Large Consumers:
+
+sh
+du -sh /mnt/data/*
+
+🛠 If You're Using Harness or RAFTS Agents
+
+Harness doesn't affect how Kubernetes PVCs behave. As long as the pod has access to the volume, kubectl exec is your best tool.
+
+If your Harness pipeline runs in a container with access to the PVC, you can even embed a df -h or du -sh check in your CI/CD script for monitoring or alerting.
+
+✅ Example One-Liner
+
+To get PVC usage directly via a one-liner:
+
+sh
+kubectl exec <pod-name> -- df -h | grep /mnt
+
+
+Replace /mnt with your actual mount path.
+
+Let me know your storage class (e.g., gp2, efs, rook-ceph, etc.) if you'd like automated ways to track usage outside the pod.

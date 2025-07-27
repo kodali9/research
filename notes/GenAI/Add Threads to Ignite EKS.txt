@@ -1,0 +1,84 @@
+**You:**
+
+i have ignite on eks
+
+how can i add additional threads to ignite
+
+* * *
+
+**ChatGPT:**
+
+To add additional threads to Apache Ignite on EKS (Elastic Kubernetes Service), you need to tune the Ignite thread pool configurations by setting appropriate JVM parameters or environment variables in your Ignite pod definitions (usually in the ignite.sh startup script or as part of the container command/args).
+
+Here's a step-by-step on how to do this:
+
+🔧 Step 1: Identify the Thread Pools You Want to Increase
+
+Apache Ignite uses multiple thread pools:
+
+Thread Pool	System Property	Description
+Public pool	IgniteConfiguration.setPublicThreadPoolSize() or IGNITE_THREAD_POOL_SIZE	Handles user compute tasks.
+System pool	IgniteConfiguration.setSystemThreadPoolSize() or IGNITE_SYSTEM_POOL_SIZE	Handles internal Ignite tasks.
+Query pool	IGNITE_QUERY_THREAD_POOL_SIZE	Handles SQL query execution.
+Rebalance	IGNITE_REBALANCE_THREAD_POOL_SIZE	Handles data rebalancing.
+🔧 Step 2: Update Deployment or StatefulSet YAML
+
+Assuming you're deploying Ignite via a Kubernetes StatefulSet or Deployment, you can add these environment variables under the container spec:
+
+yaml
+env:
+  - name: IGNITE_THREAD_POOL_SIZE
+    value: "64"
+  - name: IGNITE_SYSTEM_POOL_SIZE
+    value: "32"
+  - name: IGNITE_QUERY_THREAD_POOL_SIZE
+    value: "16"
+  - name: IGNITE_REBALANCE_THREAD_POOL_SIZE
+    value: "8"
+
+
+Note: Adjust the values based on your workload and node resources.
+
+🧠 Alternative: Pass as JVM Arguments
+
+If you use a custom startup script or image, you can pass these via JVM_OPTS:
+
+bash
+-DIGNITE_THREAD_POOL_SIZE=64 \
+-DIGNITE_SYSTEM_POOL_SIZE=32 \
+-DIGNITE_QUERY_THREAD_POOL_SIZE=16 \
+-DIGNITE_REBALANCE_THREAD_POOL_SIZE=8
+
+
+For example, in ignite.sh, modify or set:
+
+bash
+JVM_OPTS="$JVM_OPTS -DIGNITE_THREAD_POOL_SIZE=64 -DIGNITE_SYSTEM_POOL_SIZE=32"
+
+✅ Step 3: Redeploy Ignite Pods
+
+Once the environment variables or JVM arguments are updated, restart the pods so the new configuration takes effect:
+
+bash
+kubectl rollout restart statefulset ignite
+
+
+(or whatever name your Ignite resource has)
+
+🧪 Step 4: Verify Configuration
+
+Inside a pod:
+
+bash
+kubectl exec -it <ignite-pod> -- /bin/bash
+
+
+Then, run:
+
+bash
+jcmd <ignite-pid> VM.system_properties | grep IGNITE
+
+
+Or, if logging is enabled, you can also look at the logs on startup; Ignite will print the configured thread pools.
+
+Would you like help updating a sample YAML for this?
