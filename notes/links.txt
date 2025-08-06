@@ -1,0 +1,1 @@
+https://marketplace.visualstudio.com/_apis/public/gallery/publishers/ms-vscode-remote/vsextensions/remote-wsl/0.101.2024073113/vspackage
