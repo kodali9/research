@@ -1,0 +1,38 @@
+# In WSL
+sudo tee /etc/sysctl.d/99-keepalive.conf >/dev/null <<'EOF'
+net.ipv4.tcp_keepalive_time = 60
+net.ipv4.tcp_keepalive_intvl = 30
+net.ipv4.tcp_keepalive_probes = 5
+EOF
+sudo sysctl --system
+
+
+
+[wsl2]
+# Reserve enough RAM so the VS Code server isn't OOM-killed
+memory=8GB            # pick a value your machine can spare (e.g., 8–12GB)
+processors=4          # optional; set what you want
+swap=16GB             # ensure there’s swap to avoid kills under load
+autoMemoryReclaim=gradual   # less aggressive than 'dropcache'; 'disabled' if you still see kills
+# (Optional) keep the VM from idling out if you see time-based disconnects
+# vmIdleTimeout=0
+# (Optional, helps networking stability on some setups)
+dnsTunneling=true
+localhostForwarding=true
+
+
+
+"files.watcherExclude": {
+  "**/node_modules/**": true,
+  "**/.git/**": true,
+  "**/dist/**": true,
+  "**/target/**": true
+},
+"search.exclude": {
+  "**/node_modules": true,
+  "**/dist": true,
+  "**/target": true
+}
+
+dmesg | egrep -i 'killed process|out of memory' | tail -n 20
+
