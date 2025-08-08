@@ -1,0 +1,58 @@
+sudo bash -eux <<'EOF'
+# 1) Prevent Windows from regenerating resolv.conf
+cat >/etc/wsl.conf <<'CFG'
+[network]
+generateResolvConf = false
+# (Optional) enable systemd so boot services can run
+[boot]
+systemd=true
+CFG
+
+# 2) Set static DNS and lock it (tweak nameservers if you want)
+rm -f /etc/resolv.conf || true
+cat >/etc/resolv.conf <<'RESOLV'
+nameserver 8.8.8.8
+nameserver 1.1.1.1
+options timeout:2 attempts:2 rotate
+RESOLV
+chattr +i /etc/resolv.conf
+
+# 3) TCP keepalives (helps avoid idle WebSocket drops)
+cat >/etc/sysctl.d/99-keepalive.conf <<'SYS'
+net.ipv4.tcp_keepalive_time = 60
+net.ipv4.tcp_keepalive_intvl = 30
+net.ipv4.tcp_keepalive_probes = 5
+SYS
+sysctl --system
+
+# 4) (Optional) tiny boot service to re-assert DNS/keepalive on boot
+cat >/usr/local/bin/wsl-keepalive.sh <<'SCRIPT'
+#!/usr/bin/env bash
+set -e
+# Re-assert resolv.conf immutability if something flipped it
+if [ -f /etc/resolv.conf ]; then
+  chattr +i /etc/resolv.conf || true
+fi
+# Re-apply sysctl in case kernel params reset
+/sbin/sysctl --system >/dev/null 2>&1 || true
+SCRIPT
+chmod +x /usr/local/bin/wsl-keepalive.sh
+
+cat >/etc/systemd/system/wsl-keepalive.service <<'UNIT'
+[Unit]
+Description=WSL keepalive/DNS reassert
+After=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/wsl-keepalive.sh
+
+[Install]
+WantedBy=multi-user.target
+UNIT
+
+# Enable only if systemd is active in this distro
+if command -v systemctl >/dev/null 2>&1; then
+  systemctl enable wsl-keepalive.service || true
+fi
+EOF
