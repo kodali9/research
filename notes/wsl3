@@ -1,0 +1,12 @@
+# Confirm config
+sudo bash -lc 'printf "%s\n" "--- /etc/wsl.conf ---"; cat /etc/wsl.conf'
+# Should contain ONLY:
+# [network]
+# generateResolvConf = true
+#
+# [boot]
+# systemd=true
+
+# Check PID 1 is systemd
+ps -p 1 -o comm=
+# Expect: systemd
