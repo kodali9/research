@@ -10,3 +10,5 @@ sudo bash -lc 'printf "%s\n" "--- /etc/wsl.conf ---"; cat /etc/wsl.conf'
 # Check PID 1 is systemd
 ps -p 1 -o comm=
 # Expect: systemd
+
+echo $WSL_DISTRO_NAME; uname -a; wsl.exe --version
