@@ -1,0 +1,51 @@
+Open %UserProfile%\.wslconfig and set:
+
+[wsl2]
+networkingMode=mirrored
+dnsTunneling=true
+autoProxy=true
+# optional but recommended:
+# firewall=true
+
+==========
+mirrored + dnsTunneling makes WSL use Windows’ DNS (incl. VPN split-DNS)
+wsl --shutdown
+===========
+WSL
+
+# 1) Allow WSL to manage resolv.conf again
+sudo chattr -i /etc/resolv.conf 2>/dev/null || true
+sudo rm -f /etc/resolv.conf
+
+# 2) Restart the WSL VM from Windows to regenerate with dnsTunneling
+exit
+=======
+Windows
+
+wsl --shutdown
+=========
+WSL
+
+cat /etc/resolv.conf
+# Expect to see something like: nameserver 127.0.0.1   (WSL DNS proxy)
+=========
+If your org blocks dnsTunneling, fall back to gateway DNS
+
+(Only if step B didn’t fix it.)
+
+sudo chattr -i /etc/resolv.conf 2>/dev/null || true
+sudo rm -f /etc/resolv.conf
+GATEWAY_IP=$(ip route | awk '/^default/ {print $3; exit}')
+printf "nameserver %s\nnameserver 1.1.1.1\n" "$GATEWAY_IP" | sudo tee /etc/resolv.conf >/dev/null
+sudo sed -i 's/\r$//' /etc/resolv.conf
+sudo chattr +i /etc/resolv.conf
+
+=========
+WSL
+
+rm -rf ~/.vscode-server ~/.vscode-remote 2>/dev/null || true
+=====
+getent hosts gitlab.com
+getent hosts <your-eks-endpoint>.amazonaws.com
+curl -I https://gitlab.com    # should return HTTP/2 200/301
+kubectl cluster-info          # should no longer show “couldn’t get current server API group list”
